@@ -18,6 +18,8 @@ func main() {
 	waitGrp.Add(2)
 
 	// self calling function
+	// go key-word creates a goroutine to allow for concurrency
+	// Go handles all thread management. goroutine != os thread but more light weight
 	go func() {
 		// run sync Done function upon returning
 		defer waitGrp.Done()
