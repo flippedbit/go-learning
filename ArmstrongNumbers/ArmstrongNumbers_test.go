@@ -1,6 +1,7 @@
 package main
 
 import (
+	"math"
 	"testing"
 )
 
@@ -27,5 +28,17 @@ func TestArmstrong(t *testing.T) {
 	got, _ := isArmstrong(371)
 	if expected != got {
 		t.Errorf("expected: %t, got: %t", expected, got)
+	}
+}
+
+func BenchmarkExponent(b *testing.B) {
+	for i := 0; i < 100; i++ {
+		exponent(3, 3)
+	}
+}
+
+func BenchmarkPow(b *testing.B) {
+	for i := 0; i < 100; i++ {
+		math.Pow(3, 3)
 	}
 }
