@@ -32,7 +32,17 @@ func (f *Filter) BySubnet(s string) *Filter {
 }
 
 func (f *Filter) ByTags(s string) *Filter {
-
+	ss := strings.Split(s, ",")
+	for _, tag := range ss {
+		t := strings.Split(tag, "=")
+		tName := fmt.Sprintf("tag:%s", t[0])
+		f.f = append(f.f, &ec2.Filter{
+			Name: aws.String(tName),
+			Values: []*string{
+				aws.String(t[1]),
+			},
+		})
+	}
 	return f
 }
 
@@ -61,18 +71,27 @@ func (f *Filter) Build() []*ec2.Filter {
 func main() {
 	// new way to construct aws Filter for gathering instances, just as an example using builder pattern
 	filter := &Filter{}
-	f := filter.ByRunning().BySubnet("abc,bcd").ByInstance("i-12345,i-56789").ByAvailabilityZone("us-east-1a").Build()
+	f := filter.ByRunning().ByTags("owner=me,cust=you").BySubnet("abc,bcd").ByInstance("i-12345,i-56789").ByAvailabilityZone("us-east-1a").Build()
 	fmt.Println(f)
 	// output:
 	// [{
-	//   Name: "instance-state-name",
-	//   Values: ["running"]
+	// 	Name: "instance-state-name",
+	// 	Values: ["running"]
 	// } {
-	//   Name: "subnet-id",
-	//   Values: ["abc","bcd"]
+	// 	Name: "tag:owner",
+	// 	Values: ["me"]
 	// } {
-	// 	 Name: "availability-zone",
-	// 	 Values: ["us-east-1a"]
+	// 	Name: "tag:cust",
+	// 	Values: ["you"]
+	// } {
+	// 	Name: "subnet-id",
+	// 	Values: ["abc","bcd"]
+	// } {
+	// 	Name: "instance-id",
+	// 	Values: ["i-12345","i-56789"]
+	// } {
+	// 	Name: "availability-zone",
+	// 	Values: ["us-east-1a"]
 	// }]
 
 	// previous Filter used in app that works for comparison
